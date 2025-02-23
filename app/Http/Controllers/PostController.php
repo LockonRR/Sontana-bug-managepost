@@ -8,22 +8,40 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // ดึงข้อมูลโพสต์พร้อมกับข้อมูลของผู้ใช้, หมวดหมู่, ความคิดเห็น, ไฟล์แนบ
-        $posts = Post::with(['user', 'category', 'comments', 'likes', 'attachments'])->get();
+        // รับค่า category_id จาก query string
+        $category_id = $request->input('category_id');
 
-        // ดึงข้อมูลหมวดหมู่
+        // ตรวจสอบว่าเป็นการเรียก API หรือไม่
+        if ($request->expectsJson()) {
+            // ถ้าเป็นการเรียกแบบ API ให้คืนข้อมูลในรูปแบบ JSON
+            $posts = Post::with(['user', 'category', 'comments', 'likes', 'attachments'])
+            ->when($category_id, function ($query) use ($category_id) {
+                return $query->where('category_id', $category_id);
+            })
+                ->get();
+
+            return response()->json($posts);
+        }
+
+        // ถ้าเป็นการเรียกจาก Inertia ให้ส่งไปยัง React component
+        $posts = Post::with(['user', 'category', 'comments', 'likes', 'attachments'])
+        ->when($category_id, function ($query) use ($category_id) {
+            return $query->where('category_id', $category_id);
+        })
+            ->get();
+
         $categories = Category::all();
+        $selectedCategory = $category_id ? Category::find($category_id) : null;
 
-        // ส่งข้อมูลผ่าน Inertia ไปยัง React คอมโพเนนต์
         return Inertia::render('Sontana/Posts/Index', [
             'posts' => $posts,
-            'categories' => $categories
+            'categories' => $categories,
+            'selectedCategory' => $selectedCategory
         ]);
     }
 
@@ -36,15 +54,17 @@ class PostController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
+
         Log::info($request->all());
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // ✅ ตรวจสอบไฟล์รูปภาพ
         ]);
 
         // ✅ ตรวจสอบไฟล์รูปภาพก่อนบันทึก
@@ -75,25 +95,30 @@ class PostController extends Controller
         return redirect('/sontana/posts')->with('success', 'Post created!');
     }
 
+
+    public function show($id)
+    {
+        // ดึงข้อมูลโพสต์พร้อมความสัมพันธ์
+        $post = Post::with(['user', 'category', 'comments.user', 'likes', 'attachments'])
+            ->findOrFail($id);
+
+        // ✅ ดึงหมวดหมู่ทั้งหมด
+        $categories = Category::all();
+
+        return Inertia::render('Sontana/Posts/Postid', [
+            'post' => $post,
+            'categories' => $categories, // ✅ ต้องส่ง categories ไป
+        ]);
+    }
+
     public function destroy($id)
     {
-        $post = Post::findOrFail($id);
+        DB::transaction(function () use ($id) {
+            $post = Post::with('comments')->findOrFail($id);
+            $post->comments()->delete(); // ลบคอมเมนต์ของโพสต์
+            $post->delete(); // ลบโพสต์
+        });
 
-        // ตรวจสอบว่าเป็นผู้ใช้ที่โพสต์หรือไม่
-        if ($post->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        // ลบไฟล์รูปภาพ (ถ้ามี)
-        if ($post->image) {
-            Storage::disk('public')->delete($post->image);
-        }
-
-        // ลบโพสต์
-        $post->delete();
-
-        return redirect()->route('posts.index')->with('success', 'Post deleted!');
+        return redirect()->route('post.index')->with('success', 'Post deleted successfully!');
     }
 }
-
-

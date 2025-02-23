@@ -11,14 +11,21 @@ const ManagePosts = () => {
 
     const fetchPosts = async () => {
         try {
-            const response = await fetch("/api/posts");
+            const response = await fetch("/sontana/posts", {
+                headers: { Accept: "application/json" }, // บอก Laravel ว่าขอ JSON
+            });
             if (!response.ok) throw new Error("Failed to fetch posts");
             const data = await response.json();
-            setPosts(data);
+            setPosts(data); // สมมติว่ามี useState สำหรับ posts
         } catch (error) {
             console.error("Error fetching posts:", error);
         }
     };
+
+    // เรียก fetchPosts() ตอน Component โหลด
+    useEffect(() => {
+        fetchPosts();
+    }, []);
 
     const handleDelete = async () => {
         if (selectedPosts.length === 0) {

@@ -1,5 +1,7 @@
 import React from "react";
 import { Inertia } from "@inertiajs/inertia";
+import { Link } from "@inertiajs/react";
+
 const SideNavFront = ({ categories }) => {
     console.log("หมวดหมู่ที่ได้รับจาก Props:", categories);
 
@@ -10,15 +12,20 @@ const SideNavFront = ({ categories }) => {
                 <div className="flex flex-col space-y-2">
                     {categories && categories.length > 0 ? (
                         categories.map((category) => (
-                            <p className="text-gray-700 cursor-pointer hover:bg-blue-200 p-2 rounded-lg" key={category.id}>
+                            <Link
+                                key={category.id}
+                                href={route("post.index", {
+                                    category_id: category.id,
+                                })} // ส่ง category_id ไปใน URL
+                                className="text-gray-700 cursor-pointer hover:bg-blue-200 p-2 rounded-lg"
+                            >
                                 {category.name}
-                            </p>
+                            </Link>
                         ))
                     ) : (
                         <p className="text-gray-500">ไม่มีหมวดหมู่</p>
                     )}
                 </div>
-
             </div>
         </div>
     );

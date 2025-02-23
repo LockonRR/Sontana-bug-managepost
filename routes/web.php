@@ -19,7 +19,6 @@ use App\Models\Role;
 use App\Models\Category;
 
 
-
 // Dashboard - Fetching Statistics
 Route::get('/admindb', function () {
     // Fetch the data
@@ -36,6 +35,7 @@ Route::get('/admindb', function () {
         'usersToday' => $usersToday,
     ]);
 });
+
 
 // เส้นทางสำหรับแดชบอร์ดที่ต้องการการยืนยันตัวตนและอีเมล
 
@@ -54,14 +54,15 @@ Route::get('/', function () {
 });
 Route::get('/sontana/posts', [PostController::class, 'index'])->name('post.index');
 
-
-
 Route::middleware('auth')->group(function () {
     Route::get('/sontana/create', [PostController::class, 'create'])->name('post.create');
     Route::post('/sontana/posts', [PostController::class, 'store'])->name('post.store');
+    Route::get('/sontana/posts/{id}', [PostController::class, 'show'])->name('post.show');
     Route::get('/sontana/posts/{id}/edit', [PostController::class, 'edit'])->name('post.edit');
     Route::put('/sontana/posts/{id}', [PostController::class, 'update'])->name('post.update');
     Route::delete('/sontana/posts/{id}', [PostController::class, 'destroy'])->name('post.destroy');
+    Route::post('/posts/{id}/comment', [CommentController::class, 'store'])->name('comment.store');
+
 });
 
 // User Management - Fetching Users from Database
