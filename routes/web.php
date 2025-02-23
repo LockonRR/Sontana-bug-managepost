@@ -19,23 +19,6 @@ use App\Models\Role;
 use App\Models\Category;
 
 
-// Dashboard - Fetching Statistics
-Route::get('/admindb', function () {
-    // Fetch the data
-    $totalUsers = User::count();
-    $totalPosts = Post::count();
-    $totalReports = Report::count();
-    $usersToday = User::withCount('posts')
-        ->whereDate('created_at', now()->toDateString())
-        ->get(['id', 'name', 'email']);
-    return Inertia::render('Admin/Dashboard', [
-        'totalUsers' => $totalUsers,
-        'totalPosts' => $totalPosts,
-        'totalReports' => $totalReports,
-        'usersToday' => $usersToday,
-    ]);
-});
-
 
 // เส้นทางสำหรับแดชบอร์ดที่ต้องการการยืนยันตัวตนและอีเมล
 
@@ -63,6 +46,32 @@ Route::middleware('auth')->group(function () {
     Route::delete('/sontana/posts/{id}', [PostController::class, 'destroy'])->name('post.destroy');
     Route::post('/posts/{id}/comment', [CommentController::class, 'store'])->name('comment.store');
 
+});
+
+// Dashboard - Fetching Statistics
+Route::get('/admindb', function () {
+    $user = auth()->user();
+
+    // ตรวจสอบว่า role เป็น 'admin' หรือไม่
+    if ($user && $user->role === 'admin') {
+        // ดึงข้อมูลและแสดงหน้า Admin Dashboard
+        $totalUsers = User::count();
+        $totalPosts = Post::count();
+        $totalReports = Report::count();
+        $usersToday = User::withCount('posts')
+            ->whereDate('created_at', now()->toDateString())
+            ->get(['id', 'name', 'email']);
+
+        return Inertia::render('Admin/Dashboard', [
+            'totalUsers' => $totalUsers,
+            'totalPosts' => $totalPosts,
+            'totalReports' => $totalReports,
+            'usersToday' => $usersToday,
+        ]);
+    }
+
+    // ถ้า role ไม่ใช่ 'admin' ให้รีไดเร็กต์ไปหน้าอื่น
+    return redirect()->route('login')->with('error', 'You do not have access to this page');
 });
 
 // User Management - Fetching Users from Database

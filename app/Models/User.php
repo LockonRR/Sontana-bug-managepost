@@ -13,7 +13,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable; // เพิ่ม HasApiTokens ที่นี่
 
     protected $fillable = [
-        'name', 
+        'name',
         'email',
         'password',
         'role'
@@ -51,4 +51,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(Like::class);
     }
+    
 }
