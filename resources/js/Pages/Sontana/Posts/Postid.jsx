@@ -1,7 +1,6 @@
 import { router } from "@inertiajs/react";
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
-import SideNavFront from "@/Components/SideNavBarFront";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function PostDetail() {
@@ -25,7 +24,7 @@ export default function PostDetail() {
                 onSuccess: (page) => {
                     setComments(page.props.comments || []);
                     setComment("");
-            window.location.reload();
+                    window.location.reload();
                 },
             }
         );
@@ -33,38 +32,38 @@ export default function PostDetail() {
 
     return (
         <AuthenticatedLayout>
-            <div className="grid grid-cols-4 gap-4 p-5 font-sans bg-gray-100 min-h-screen">
-                <SideNavFront categories={categories} />
+            <div className="p-5 font-sans bg-gray-100 min-h-screen">
                 <div className="col-span-3 bg-white p-6 mt-5 rounded-lg shadow-md">
                     {post.image && (
                         <img
                             src={`/storage/${post.image}`}
                             alt={post.title}
-                            className="w-full h-64 object-cover rounded-lg mb-4"
+                            className="w-full h-64 object-contain rounded-lg mb-4"
                         />
                     )}
                     <h1 className="text-5xl font-bold text-gray-800 mb-6">
                         {post.title}
                     </h1>
 
-                    {auth.user && auth.user.id === post.user_id && (
-                        <div className="flex space-x-4 mt-6">
-                            <Link
-                                href={route("post.edit", post.id)}
-                                className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
-                            >
-                                Edit
-                            </Link>
-                            <button
-                                onClick={() => handleDelete(post.id)}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    )}
+                    {auth.user &&
+                        (auth.user.id === post.user_id ||
+                            auth.user.role === "admin") && (
+                            <div className="flex space-x-4 mt-6">
+                                <Link
+                                    href={route("post.edit", post.id)}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
+                                >
+                                    Edit
+                                </Link>
+                                <button
+                                    onClick={() => handleDelete(post.id)}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}  
 
-                    {/* ฟอร์มเพิ่มคอมเมนต์ */}
                     {auth.user && (
                         <form onSubmit={handleSubmit} className="mt-6">
                             <textarea
@@ -83,7 +82,6 @@ export default function PostDetail() {
                         </form>
                     )}
 
-                    {/* แสดงคอมเมนต์ */}
                     <div className="mt-8">
                         <h2 className="text-2xl font-semibold">Comments</h2>
                         {comments.length > 0 ? (
@@ -96,6 +94,11 @@ export default function PostDetail() {
                                         {comment.user?.name || "Unknown User"}:
                                     </p>
                                     <p>{comment.content}</p>
+                                    <p className="text-sm text-gray-500">
+                                        {new Date(
+                                            comment.created_at
+                                        ).toLocaleString("en-GB")}
+                                    </p>
                                 </div>
                             ))
                         ) : (

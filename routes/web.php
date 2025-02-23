@@ -81,11 +81,12 @@ Route::get('/usermanage', [UserController::class, 'index'])->name('Admin/Userman
 Route::get('/manageposts', function () {
     return Inertia::render('Admin/Manageposts');
 });
-Route::get('/reports', function () {
-    return Inertia::render('Admin/Reports');
-});
+
 Route::get('/commentreports', function () {
     return Inertia::render('Admin/Comment_Reports');
+
+
+
 });
 
 

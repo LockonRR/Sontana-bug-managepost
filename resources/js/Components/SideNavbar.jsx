@@ -68,34 +68,6 @@ const SideNavBar = () => {
                                 Manage Posts
                             </a>
                         </li>
-                        <li
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-700"
-                            onClick={toggleReportsMenu}
-                        >
-                            <span className="block">Reports System</span>
-                            <ul
-                                className={`pl-2 mt-2 border-l-2 border-gray-500 ${
-                                    isReportsOpen ? "" : "hidden"
-                                }`}
-                            >
-                                <li className="py-2">
-                                    <a
-                                        href="/reports"
-                                        className="block w-full h-full hover:bg-gray-800 px-4 py-2"
-                                    >
-                                        Post Reported
-                                    </a>
-                                </li>
-                                <li className="py-2">
-                                    <a
-                                        href="/commentreports"
-                                        className="block w-full h-full hover:bg-gray-800 px-4 py-2"
-                                    >
-                                        Comment Reported
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
                         <li className="px-4 py-2 hover:bg-gray-700">
                             <a
                                 href="/usermanage"
@@ -104,11 +76,7 @@ const SideNavBar = () => {
                                 User Management
                             </a>
                         </li>
-                        <li className="px-4 py-2 hover:bg-gray-700">
-                            <a href="/settings" className="block w-full h-full">
-                                Settings
-                            </a>
-                        </li>
+                        
                     </div>
                 </ul>
             </div>
