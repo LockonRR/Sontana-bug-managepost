@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
@@ -8,13 +8,16 @@ export default function PostDetail() {
     const [comment, setComment] = useState("");
     const [comments, setComments] = useState(post.comments || []);
 
+    useEffect(() => {
+        console.log("Post Data:", post); // ✅ ตรวจสอบว่า content ถูกส่งมาหรือไม่
+    }, [post]);
+
     const handleDelete = (postId) => {
         if (confirm("Are you sure you want to delete this post?")) {
             router.delete(route("post.destroy", postId));
         }
     };
 
-    // ✅ เพิ่มฟังก์ชัน handleSubmit
     const handleSubmit = (e) => {
         e.preventDefault();
         router.post(
@@ -45,6 +48,11 @@ export default function PostDetail() {
                         {post.title}
                     </h1>
 
+                    {/* ✅ แสดงเนื้อหาของโพสต์ */}
+                    <div className="mt-4 text-lg text-gray-700 whitespace-pre-line">
+                        {post.content}
+                    </div>
+
                     {auth.user &&
                         (auth.user.id === post.user_id ||
                             auth.user.role === "admin") && (
@@ -62,7 +70,7 @@ export default function PostDetail() {
                                     Delete
                                 </button>
                             </div>
-                        )}  
+                        )}
 
                     {auth.user && (
                         <form onSubmit={handleSubmit} className="mt-6">

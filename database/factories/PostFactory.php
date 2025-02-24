@@ -20,6 +20,7 @@ class PostFactory extends Factory
             'category_id' => Category::inRandomOrder()->first()->id ?? Category::factory(),
             'views' => $this->faker->numberBetween(0, 500),
             'status' => $this->faker->randomElement(['active', 'locked', 'deleted']),
+            'image' => 'posts/' . $this->faker->image('storage/app/public/posts', 640, 480, null, false),
             'created_at' => now(),
             'updated_at' => now(),
         ];

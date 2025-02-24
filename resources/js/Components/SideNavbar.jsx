@@ -76,7 +76,6 @@ const SideNavBar = () => {
                                 User Management
                             </a>
                         </li>
-                        
                     </div>
                 </ul>
             </div>
